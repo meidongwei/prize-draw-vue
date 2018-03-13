@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Prize Draw</title>
+  <style>
+  #app,
+  .btn-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .segment {
+    width: 500px;
+  }
+  .segment > h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .panel p {
+    color: #ae95ff;
+    font-size: 20px;
+  }
+  .btn {
+    padding: 10px 30px;
+    margin: 5px;
+    border: none;
+    background-color: #cdcdcd;
+    border-radius: 5px;
+    font-size: 20px;
+    cursor: pointer;
+    color: #fff;
+    margin-bottom: 20px;
+    transition: all .25s ease-out;
+  }
+  .btn:hover {
+    background-color: #999999;
+  }
+  .primary {
+    background-color: #ae95ff;
+  }
+  .primary:hover {
+    background-color: #7c6ab5;
+  }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="segment">
+      <h1>{{ title }}</h1>
+      <div class="btn-group">
+        <button v-if="isShowStart" @click="handleStart" class="btn primary">{{ btnText }}</button>
+        <button v-if="isShowReset" @click="location.reload()"class="btn">重置</button>
+      </div>
+      <div class="panel" v-if="isShowPanel">
+        <h2>中奖名单：</h2>
+        <ul>
+          <li v-for="(item, index) in winningList" :key="index">
+            <p>{{ item.name }}</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script>
+    let vm = new Vue({
+      el: '#app',
+      data () {
+        return {
+          personList: [
+            {
+              id: 1,
+              name: 'Bob'
+            },
+            {
+              id: 2,
+              name: 'Melan'
+            },
+            {
+              id: 3,
+              name: 'Kirry'
+            },
+            {
+              id: 4,
+              name: 'Haley'
+            },
+            {
+              id: 5,
+              name: 'Billy'
+            }
+          ],
+          index: 0, // personList 索引
+          interval: 0, // 用于停止计时器
+          isShowStart: true,
+          isShowReset: false,
+          isShowPanel: false,
+          title: '准备',
+          btnText: '开始',
+          winningList: [], // 中奖者名单
+        }
+      },
+      methods: {
+        handleInterval () {
+          this.interval = setInterval(() => {
+            this.title = this.personList[this.index].name
+            this.index++
+            if (this.personList.length === this.index) {
+              this.index = 0
+            }
+          }, 50)
+        },
+        handleStart () {
+          if (this.btnText === '开始') {
+            this.handleInterval()
+            this.btnText = '停止'
+            this.isShowReset = true
+          } else if (this.btnText === '停止') {
+            clearInterval(this.interval)
+            this.isShowPanel = true
+            this.title = '恭喜 '+this.personList[this.index].name+ ' 中奖'
+            this.btnText = '继续'
+            // 将中奖者名单添加到 winningList 数组
+            this.winningList.push(this.personList[this.index])
+            // 从数组中去除中奖名单,并重置 index 为0
+            this.personList.splice(this.index, 1)
+            this.index = 0
+          } else if (this.btnText === '继续') {
+            if (this.personList.length > 1) {
+              this.handleInterval()
+              this.btnText = '停止'
+            } else {
+              this.winningList.push(this.personList[0])
+              this.title = '恭喜 '+this.personList[0].name+ ' 中奖'
+              this.isShowStart = false
+            }
+          }
+        }
+      }
+    })
+  </script>
+</body>
+</html>
